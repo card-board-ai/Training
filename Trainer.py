@@ -32,7 +32,7 @@ if rules == "y":
     text_splitter = CharacterTextSplitter(chunk_size=600, chunk_overlap=100)
     rules_docs = text_splitter.split_documents(documents)
     SupabaseVectorStore.from_documents(
-    rules_docs, embeddings, client=supabase, table_name="rules")
+    rules_docs, embeddings, client=supabase, table_name="rules", show_progress=True)
 elif rules == "n":
     print("Not training rules data")
     rules_docs = []
@@ -51,7 +51,7 @@ if cards == "y":
                           'highres_image', 'image_status', 'image_uris', 'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri', 'rulings_uri',
                            'prints_search_uri', 'card_back_id', 'flavor_text', 'artist_ids', 'illustration_id', 'border_color', 'frame', 'full_art', 'textless',
                             'booster', 'story_spotlight', 'edhrec_rank', 'prices', 'related_uris', 'tcgplayer_infinite_articles', 'tcgplayer_infinite_decks',
-                             'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id' ]
+                             'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation' ]
     def json_merger():
         with tqdm(total=len(file_b), desc="Merging data", unit="object") as pbar:
     # Iterate over File B and modify the data
@@ -62,6 +62,7 @@ if cards == "y":
                     rulings_dict[oracle_id] = []
                     rulings_dict[oracle_id].append(comment)
     # Iterate over the data from File B, add rulings (if any), and remove unwanted properties
+    #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should removey
             for item in file_b:
                 oracle_id = item['oracle_id']
                 if oracle_id in rulings_dict:
@@ -88,7 +89,7 @@ if cards == "y":
     jq_schema='.[] | tostring')
     card_docs = loader.load()
     SupabaseVectorStore.from_documents(
-    card_docs, embeddings, client=supabase, table_name="cards")
+    card_docs, embeddings, client=supabase, table_name="cards", show_progress=True)
 elif cards == "n":
     print("Not training cards")
     card_docs = []
