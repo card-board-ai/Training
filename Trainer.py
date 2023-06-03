@@ -51,7 +51,8 @@ if cards == "y":
                           'highres_image', 'image_status', 'image_uris', 'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri', 'rulings_uri',
                            'prints_search_uri', 'card_back_id', 'flavor_text', 'artist_ids', 'illustration_id', 'border_color', 'frame', 'full_art', 'textless',
                             'booster', 'story_spotlight', 'edhrec_rank', 'prices', 'related_uris', 'tcgplayer_infinite_articles', 'tcgplayer_infinite_decks',
-                             'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation' ]
+                             'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation',
+                              "all_parts" ]
     def json_merger():
         with tqdm(total=len(file_b), desc="Merging data", unit="object") as pbar:
     # Iterate over File B and modify the data
@@ -62,7 +63,7 @@ if cards == "y":
                     rulings_dict[oracle_id] = []
                     rulings_dict[oracle_id].append(comment)
     # Iterate over the data from File B, add rulings (if any), and remove unwanted properties
-    #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should removey
+    #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should remover
             for item in file_b:
                 oracle_id = item['oracle_id']
                 if oracle_id in rulings_dict:
