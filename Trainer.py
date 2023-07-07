@@ -87,11 +87,12 @@ if cards == "y":
     else:
         json_merger()
     loader = JSONLoader(
-    file_path='../finsihed_file.json',
-    jq_schema='.[] | tostring')
+        file_path='../finsihed_file.json',
+        jq_schema='.[] | tostring')
     card_docs = loader.load()
     SupabaseVectorStore.from_documents(
-    card_docs, embeddings, client=supabase, table_name="cards", show_progress=True)
+        card_docs, embeddings, client=supabase, table_name="cards", 
+        show_progress=True)
 elif cards == "n":
     print("Not training cards")
     card_docs = []
