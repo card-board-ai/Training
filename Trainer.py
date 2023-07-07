@@ -24,7 +24,8 @@ elif environment == "prod":
 else:
     raise Exception("That is not an available environment")
 
-
+#TODO have this text splitter split each rule individually instead of in deefined chunks. I believe you can have it
+#split into chunks based on numbers or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
     loader = TextLoader("../MagicRulesApril14.txt")
@@ -63,7 +64,7 @@ if cards == "y":
                     rulings_dict[oracle_id] = []
                     rulings_dict[oracle_id].append(comment)
     # Iterate over the data from File B, add rulings (if any), and remove unwanted properties
-    #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should remover
+    #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should removerin
             for item in file_b:
                 oracle_id = item['oracle_id']
                 if oracle_id in rulings_dict:
