@@ -15,7 +15,7 @@ create function match_rules (
   match_count int,
   filter jsonb DEFAULT '{}'
 ) returns table (
-  id bigint,
+  id uuid,
   content text,
   metadata jsonb,
   similarity float
@@ -39,7 +39,7 @@ $$;
 
 -- Create a function to keyword search for documents
 create function kw_match_rules(query_text text, match_count int)
-returns table (id bigint, content text, metadata jsonb, similarity real)
+returns table (id uuid, content text, metadata jsonb, similarity real)
 as $$
 
 begin
@@ -71,7 +71,7 @@ create function match_cards (
   match_count int,
   filter jsonb DEFAULT '{}'
 ) returns table (
-  id bigint,
+  id uuid,
   content text,
   metadata jsonb,
   similarity float
@@ -95,7 +95,7 @@ $$;
 
 -- Create a function to keyword search for documents
 create function kw_match_cards(query_text text, match_count int)
-returns table (id bigint, content text, metadata jsonb, similarity real)
+returns table (id uuid, content text, metadata jsonb, similarity real)
 as $$
 
 begin
