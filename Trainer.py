@@ -6,7 +6,7 @@ from pprint import pprint
 from pathlib import Path
 from supabase.client import Client, create_client
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import SupabaseVectorStore
 from langchain.document_loaders import TextLoader
 from langchain.document_loaders import JSONLoader
@@ -30,10 +30,10 @@ else:
 #split into chunks based on when it finds a formated numbers or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
-    loader = TextLoader("../MagicRulesApril14.txt")
-    documents = loader.load()
-    text_splitter = CharacterTextSplitter(chunk_size=600, chunk_overlap=100)
-    rules_docs = text_splitter.split_documents(documents)
+    with open("../MagicRulesApril14.txt") as f:
+        documents = f.read()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, length_function = len)
+    rules_docs = text_splitter.create_documents([documents])
     SupabaseVectorStore.from_documents(
     rules_docs, embeddings, client=supabase, table_name="rules", show_progress=True)
 elif rules == "n":
@@ -54,7 +54,7 @@ if cards == "y":
                            'prints_search_uri', 'card_back_id', 'flavor_text', 'artist_ids', 'illustration_id', 'border_color', 'frame', 'full_art', 'textless',
                             'booster', 'story_spotlight', 'edhrec_rank', 'prices', 'related_uris', 'tcgplayer_infinite_articles', 'tcgplayer_infinite_decks',
                              'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation',
-                              'all_parts', 'artist_id']
+                              'all_parts', 'artist_id', 'games', 'foil', 'nonfoil', 'finshes', 'set', 'collector_number']
     exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
 
     def json_merger():
@@ -65,11 +65,13 @@ if cards == "y":
                 if oracle_id not in rulings_dict:
                     rulings_dict[oracle_id] = []
                 rulings_dict[oracle_id].append(comment)
+
             for item in file_b[:]: #iterating over each card in file b
-                for prop in exclude_set_types: #This iterates over each item in 'exclude_set_types'
+                for prop in exclude_set_types: #This iterates over each item in 'exclude_set_types' and removes it if it matches
                     if item['set_type'] == prop:
                             file_b.remove(item)
                             break
+
             for item in file_b:
                 oracle_id = item['oracle_id']
                 if item['oracle_id'] in rulings_dict: #This adds the rulings to each card object
