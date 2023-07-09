@@ -54,8 +54,8 @@ if cards == "y":
                            'prints_search_uri', 'card_back_id', 'flavor_text', 'artist_ids', 'illustration_id', 'border_color', 'frame', 'full_art', 'textless',
                             'booster', 'story_spotlight', 'edhrec_rank', 'prices', 'related_uris', 'tcgplayer_infinite_articles', 'tcgplayer_infinite_decks',
                              'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation',
-                              'all_parts']
-    exclude_set_types = ['memorabilia', 'minigame', 'funny']
+                              'all_parts', 'artist_id']
+    exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
 
     def json_merger():
     # Iterate over File A and create a dictionary of rulings that should be added to the cards
@@ -65,7 +65,6 @@ if cards == "y":
                 if oracle_id not in rulings_dict:
                     rulings_dict[oracle_id] = []
                 rulings_dict[oracle_id].append(comment)
-    #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should removerin
             for item in file_b[:]: #iterating over each card in file b
                 for prop in exclude_set_types: #This iterates over each item in 'exclude_set_types'
                     if item['set_type'] == prop:
@@ -77,6 +76,9 @@ if cards == "y":
                     item['rulings'] = rulings_dict[oracle_id]
                 for prop in exclude_properties: #This removes the properties listed in 'exclude_properties' from each card iteam
                     item.pop(prop, None)
+                    if 'card_faces' in item: #this removes the properties in the nested card faces
+                        for face in item['card_faces']:
+                            face.pop(prop, None)
     # Write the merged data to a new file
             with open('../finsihed_file.json', 'w') as file:
                 json.dump(file_b, file, indent=1, ensure_ascii=False)
