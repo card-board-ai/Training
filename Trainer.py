@@ -30,10 +30,10 @@ else:
 #split into chunks based on when it finds a formated numbers or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
-    with open("../MagicRulesApril14.txt") as f:
-        documents = f.read()
+    loader = TextLoader("../MagicRulesApril14.txt")
+    documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, length_function = len)
-    rules_docs = text_splitter.create_documents([documents])
+    rules_docs = text_splitter.split_documents(documents)
     SupabaseVectorStore.from_documents(
     rules_docs, embeddings, client=supabase, table_name="rules", show_progress=True)
 elif rules == "n":
