@@ -1,6 +1,6 @@
-import os
 import configparser
 import json
+import ndjson
 from tqdm import tqdm
 from pprint import pprint
 from pathlib import Path
@@ -21,11 +21,13 @@ if environment == "local":
     supabase: Client = create_client(config.get('Supabase', 'local_url'), config.get('Supabase', 'local_key'))
 elif environment == "prod":
     supabase: Client = create_client(config.get('Supabase', 'prod_url'), config.get('Supabase', 'prod_private_key'))
+elif environment == "none":
+    pass
 else:
     raise Exception("That is not an available environment")
 
 #TODO have this text splitter split each rule individually instead of in deefined chunks. I believe you can have it
-#split into chunks based on numbers or line breaks and other stuff
+#split into chunks based on when it finds a formated numbers or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
     loader = TextLoader("../MagicRulesApril14.txt")
@@ -40,7 +42,6 @@ elif rules == "n":
 else:
     raise Exception("That is not y or n")
 
-
 cards = input("Do you want to train cards? y/n: ")
 if cards == "y":
     with open('../rulings-20230507090027.json', 'r') as file:
@@ -53,29 +54,34 @@ if cards == "y":
                            'prints_search_uri', 'card_back_id', 'flavor_text', 'artist_ids', 'illustration_id', 'border_color', 'frame', 'full_art', 'textless',
                             'booster', 'story_spotlight', 'edhrec_rank', 'prices', 'related_uris', 'tcgplayer_infinite_articles', 'tcgplayer_infinite_decks',
                              'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation',
-                              "all_parts" ]
+                              'all_parts']
+    exclude_set_types = ['memorabilia', 'minigame', 'funny']
+
     def json_merger():
-        with tqdm(total=len(file_b), desc="Merging data", unit="object") as pbar:
-    # Iterate over File B and modify the data
+    # Iterate over File A and create a dictionary of rulings that should be added to the cards
             for item in file_a:
                 oracle_id = item['oracle_id']
                 comment = item['comment']
                 if oracle_id not in rulings_dict:
                     rulings_dict[oracle_id] = []
-                    rulings_dict[oracle_id].append(comment)
-    # Iterate over the data from File B, add rulings (if any), and remove unwanted properties
+                rulings_dict[oracle_id].append(comment)
     #TODO this is removing the first level properties but double faced cards have properties in deeper levels that also have properties we should removerin
+            for item in file_b[:]: #iterating over each card in file b
+                for prop in exclude_set_types: #This iterates over each item in 'exclude_set_types'
+                    if item['set_type'] == prop:
+                            file_b.remove(item)
+                            break
             for item in file_b:
                 oracle_id = item['oracle_id']
-                if oracle_id in rulings_dict:
+                if item['oracle_id'] in rulings_dict: #This adds the rulings to each card object
                     item['rulings'] = rulings_dict[oracle_id]
-                for prop in exclude_properties:
+                for prop in exclude_properties: #This removes the properties listed in 'exclude_properties' from each card iteam
                     item.pop(prop, None)
-                pbar.update(1)    
     # Write the merged data to a new file
             with open('../finsihed_file.json', 'w') as file:
-                json.dump(file_b, file, indent=4)
-                print(f'new file created')
+                json.dump(file_b, file, indent=1, ensure_ascii=False)
+                print(f'new finsish_file created')
+
     if Path('../finsihed_file.json').is_file:
         new_file = input("Do you want to create a new merged JSON file? y/n: ")
         if new_file == "y":
