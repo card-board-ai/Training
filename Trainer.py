@@ -82,11 +82,11 @@ if cards == "y":
                         for face in item['card_faces']:
                             face.pop(prop, None)
     # Write the merged data to a new file
-            with open('../finsihed_file.json', 'w') as file:
+            with open('../finished_file.json', 'w') as file:
                 json.dump(file_b, file, indent=1, ensure_ascii=False)
                 print(f'new finsish_file created')
 
-    if Path('../finsihed_file.json').is_file:
+    if Path('../finished_file.json').is_file:
         new_file = input("Do you want to create a new merged JSON file? y/n: ")
         if new_file == "y":
             json_merger()
