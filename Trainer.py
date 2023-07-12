@@ -30,7 +30,7 @@ else:
 #split into chunks based on when it finds a formated numbers or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
-    loader = TextLoader("../MagicRulesApril14.txt")
+    loader = TextLoader("../MagicRulesJune16.txt")
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, length_function = len)
     rules_docs = text_splitter.split_documents(documents)
@@ -44,9 +44,9 @@ else:
 
 cards = input("Do you want to train cards? y/n: ")
 if cards == "y":
-    with open('../rulings-20230507090027.json', 'r') as file:
+    with open('../rulings-20230711210126.json', 'r') as file:
         file_a = json.load(file)
-    with open('../oracle-cards-20230507210415.json', 'r') as file:
+    with open('../oracle-cards-20230711210720.json', 'r') as file:
         file_b = json.load(file)
     rulings_dict = {}
     exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id', 'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri', 'layout',
