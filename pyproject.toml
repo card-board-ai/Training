@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "magicaitrainer"
+version = "0.1.0"
+description = ""
+authors = ["j1philli"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.0.233"
+openai = "^0.27.8"
+supabase = "^1.0.3"
+tqdm = "^4.65.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

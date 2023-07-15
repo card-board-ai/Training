@@ -1,6 +1,5 @@
 import configparser
 import json
-import ndjson
 from tqdm import tqdm
 from pprint import pprint
 from pathlib import Path
