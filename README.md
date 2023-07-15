@@ -2,8 +2,8 @@
 
 ## Project Setup
 1. Need to have [poetry](https://python-poetry.org/docs/) on path
-2.Clone project
-3.Run `poetry install` in project
+2. Clone project
+3. Run `poetry install` in project
 
 To run the script - `poetry run python Trainer.py`
 
