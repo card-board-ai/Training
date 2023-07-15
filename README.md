@@ -1,7 +1,9 @@
 # Training
 
 Need to have [poetry](https://python-poetry.org/docs/) on path
+
 Clone project
+
 Run `poetry install` in project
 
 **Note**
