@@ -9,4 +9,4 @@ To run the script - `poetry run python Trainer.py`
 
 **Note**
 
-we do want poetry.lock files in repo. If a project dependency needs to be updated the lock file should be pushed to git
+we do want the poetry.lock file in repo. It is what keeps track of project dependency versions for the `poetry install` command to install. If a project dependency needs to be updated the lock file should be pushed to git.
