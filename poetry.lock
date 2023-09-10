@@ -1533,6 +1533,17 @@ files = [
 ]
 
 [[package]]
+name = "simple-term-menu"
+version = "1.6.1"
+description = "A Python package which creates simple interactive menus on the command line."
+optional = false
+python-versions = "~=3.5"
+files = [
+    {file = "simple-term-menu-1.6.1.tar.gz", hash = "sha256:368b4158d1749b868552fb6c054b8301785086c71a7253dac8404cc3cb2d30e8"},
+    {file = "simple_term_menu-1.6.1-py3-none-any.whl", hash = "sha256:f12945d5c6998088e86a228e0aff12ff655f5bfad786c86677f23faa1d2afa50"},
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -2028,4 +2039,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f73e90b727c384a977b653cd881e400edb5d48513eda46e72a41b33700360fd8"
+content-hash = "5511f679b638df8104c3354a4085659623d1932275415e862cd4e1f03a87c283"
