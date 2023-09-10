@@ -11,6 +11,7 @@ langchain = "^0.0.233"
 openai = "^0.27.8"
 supabase = "^1.0.3"
 tqdm = "^4.65.0"
+beautifulsoup4 = "^4.12.2"
 
 
 [build-system]
