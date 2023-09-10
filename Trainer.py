@@ -1,7 +1,5 @@
 import configparser
 import json
-from tqdm import tqdm
-from pprint import pprint
 from pathlib import Path
 from supabase.client import Client, create_client
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -17,21 +15,26 @@ embeddings = OpenAIEmbeddings(openai_api_key=config.get('OpenAI', 'key'))
 
 environment = input("Which environment are we training, local or prod?: ")
 if environment == "local":
-    supabase: Client = create_client(config.get('Supabase', 'local_url'), config.get('Supabase', 'local_key'))
+    supabase: Client = create_client(config.get('Supabase', 'local_url'), 
+                                     config.get('Supabase', 'local_key'))
 elif environment == "prod":
-    supabase: Client = create_client(config.get('Supabase', 'prod_url'), config.get('Supabase', 'prod_private_key'))
+    supabase: Client = create_client(config.get('Supabase', 'prod_url'), 
+                                     config.get('Supabase', 'prod_private_key'))
 elif environment == "none":
     pass
 else:
     raise Exception("That is not an available environment")
 
-#TODO have this text splitter split each rule individually instead of in deefined chunks. I believe you can have it
-#split into chunks based on when it finds a formated numbers or line breaks and other stuff
+#TODO have this text splitter split each rule individually instead of in deefined chunks
+#I believe you can have is split into chunks based on when it finds a formated numbers
+# or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
     loader = TextLoader("../MagicRulesJune16.txt")
     documents = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, length_function = len)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, 
+                                                   chunk_overlap=200, 
+                                                   length_function = len)
     rules_docs = text_splitter.split_documents(documents)
     SupabaseVectorStore.from_documents(
     rules_docs, embeddings, client=supabase, table_name="rules", show_progress=True)
@@ -48,16 +51,25 @@ if cards == "y":
     with open('../oracle-cards-20230711210720.json', 'r') as file:
         file_b = json.load(file)
     rulings_dict = {}
-    exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id', 'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri', 'layout',
-                          'highres_image', 'image_status', 'image_uris', 'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri', 'rulings_uri',
-                           'prints_search_uri', 'card_back_id', 'flavor_text', 'artist_ids', 'illustration_id', 'border_color', 'frame', 'full_art', 'textless',
-                            'booster', 'story_spotlight', 'edhrec_rank', 'prices', 'related_uris', 'tcgplayer_infinite_articles', 'tcgplayer_infinite_decks',
-                             'edhrec', 'security_stamp', 'preview', 'penny_rank', 'variation', 'arena_id', 'oversized', 'promo', 'reprint', 'variation',
-                              'all_parts', 'artist_id', 'games', 'foil', 'nonfoil', 'finshes', 'set', 'collector_number']
+    exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
+                          'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri',
+                          'layout', 'highres_image', 'image_status', 'image_uris',
+                          'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri',
+                          'rulings_uri', 'prints_search_uri', 'card_back_id',
+                          'flavor_text', 'artist_ids', 'illustration_id',
+                          'border_color', 'frame', 'full_art', 'textless',
+                          'booster', 'story_spotlight', 'edhrec_rank', 'prices',
+                          'related_uris', 'tcgplayer_infinite_articles',
+                          'tcgplayer_infinite_decks', 'edhrec', 'security_stamp',
+                          'preview', 'penny_rank', 'variation', 'arena_id', 'oversized',
+                          'promo', 'reprint', 'variation', 'all_parts', 'artist_id',
+                          'games', 'foil', 'nonfoil', 'finshes', 'set',
+                          'collector_number']
     exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
 
     def json_merger():
-    # Iterate over File A and create a dictionary of rulings that should be added to the cards
+    # Iterate over File A and create a dictionary of rulings that should be 
+    # added to the cards
             for item in file_a:
                 oracle_id = item['oracle_id']
                 comment = item['comment']
@@ -66,24 +78,26 @@ if cards == "y":
                 rulings_dict[oracle_id].append(comment)
 
             for item in file_b[:]: #iterating over each card in file b
-                for prop in exclude_set_types: #This iterates over each item in 'exclude_set_types' and removes it if it matches
+                #This iterates over each item in 'exclude_set_types', romoving on match
+                for prop in exclude_set_types:
                     if item['set_type'] == prop:
                             file_b.remove(item)
                             break
 
             for item in file_b:
                 oracle_id = item['oracle_id']
-                if item['oracle_id'] in rulings_dict: #This adds the rulings to each card object
+                if item['oracle_id'] in rulings_dict: #This add the rulings to each card
                     item['rulings'] = rulings_dict[oracle_id]
-                for prop in exclude_properties: #This removes the properties listed in 'exclude_properties' from each card iteam
+                 #This removes the properties in 'exclude_properties' from each card
+                for prop in exclude_properties:
                     item.pop(prop, None)
-                    if 'card_faces' in item: #this removes the properties in the nested card faces
+                    if 'card_faces' in item: #removes the prop in the nested card faces
                         for face in item['card_faces']:
                             face.pop(prop, None)
     # Write the merged data to a new file
             with open('../finished_file.json', 'w') as file:
                 json.dump(file_b, file, indent=1, ensure_ascii=False)
-                print(f'new finsish_file created')
+                print('new finsish_file created')
 
     if Path('../finished_file.json').is_file:
         new_file = input("Do you want to create a new merged JSON file? y/n: ")
