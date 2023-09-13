@@ -1,12 +1,13 @@
 import configparser
 import json
-from pathlib import Path
+import os
 from supabase.client import Client, create_client
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import SupabaseVectorStore
 from langchain.document_loaders import TextLoader
 from langchain.document_loaders import JSONLoader
+from magic_cards_loader import magic_cards_loader
 
 config = configparser.ConfigParser()
 config.read('keys.cfg')
@@ -46,73 +47,16 @@ else:
 
 cards = input("Do you want to train cards? y/n: ")
 if cards == "y":
-    with open('../rulings-20230711210126.json', 'r') as file:
-        file_a = json.load(file)
-    with open('../oracle-cards-20230711210720.json', 'r') as file:
-        file_b = json.load(file)
-    rulings_dict = {}
-    exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
-                          'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri',
-                          'layout', 'highres_image', 'image_status', 'image_uris',
-                          'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri',
-                          'rulings_uri', 'prints_search_uri', 'card_back_id',
-                          'flavor_text', 'artist_ids', 'illustration_id',
-                          'border_color', 'frame', 'full_art', 'textless',
-                          'booster', 'story_spotlight', 'edhrec_rank', 'prices',
-                          'related_uris', 'tcgplayer_infinite_articles',
-                          'tcgplayer_infinite_decks', 'edhrec', 'security_stamp',
-                          'preview', 'penny_rank', 'variation', 'arena_id', 'oversized',
-                          'promo', 'reprint', 'variation', 'all_parts', 'artist_id',
-                          'games', 'foil', 'nonfoil', 'finshes', 'set',
-                          'collector_number']
-    exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
-
-    def json_merger():
-    # Iterate over File A and create a dictionary of rulings that should be 
-    # added to the cards
-            for item in file_a:
-                oracle_id = item['oracle_id']
-                comment = item['comment']
-                if oracle_id not in rulings_dict:
-                    rulings_dict[oracle_id] = []
-                rulings_dict[oracle_id].append(comment)
-
-            for item in file_b[:]: #iterating over each card in file b
-                #This iterates over each item in 'exclude_set_types', romoving on match
-                for prop in exclude_set_types:
-                    if item['set_type'] == prop:
-                            file_b.remove(item)
-                            break
-
-            for item in file_b:
-                oracle_id = item['oracle_id']
-                if item['oracle_id'] in rulings_dict: #This add the rulings to each card
-                    item['rulings'] = rulings_dict[oracle_id]
-                 #This removes the properties in 'exclude_properties' from each card
-                for prop in exclude_properties:
-                    item.pop(prop, None)
-                    if 'card_faces' in item: #removes the prop in the nested card faces
-                        for face in item['card_faces']:
-                            face.pop(prop, None)
-    # Write the merged data to a new file
-            with open('../finished_file.json', 'w') as file:
-                json.dump(file_b, file, indent=1, ensure_ascii=False)
-                print('new finsish_file created')
-
-    if Path('../finished_file.json').is_file:
-        new_file = input("Do you want to create a new merged JSON file? y/n: ")
-        if new_file == "y":
-            json_merger()
-        elif new_file =="n":
-            print("not making a new merged json file")
-        else:
-            raise Exception("That is not y or n")
-    else:
-        json_merger()
+    finished_file = magic_cards_loader()
+    with open('./finished_file_new.json', 'w') as file:
+        json.dump(finished_file, file, indent=1, ensure_ascii=False)
+        print('new finsish_file created')
     loader = JSONLoader(
-        file_path='../finsihed_file.json',
+        file_path="./finished_file_new.json",
         jq_schema='.[] | tostring')
     card_docs = loader.load()
+    print("loader loaded")
+    os.remove("./finished_file_new.json")
     SupabaseVectorStore.from_documents(
         card_docs, embeddings, client=supabase, table_name="cards", 
         show_progress=True)
