@@ -4,10 +4,10 @@ import os
 from supabase.client import Client, create_client
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import SupabaseVectorStore
 from langchain.document_loaders import TextLoader
 from langchain.document_loaders import JSONLoader
 from magic_cards_loader import magic_cards_loader
+from external_comm import supa_trainer
 
 config = configparser.ConfigParser()
 config.read('keys.cfg')
@@ -43,8 +43,7 @@ if rules == "y":
                                                    length_function = len)
     rules_docs = text_splitter.split_documents(documents)
     os.remove(rules_location)
-    SupabaseVectorStore.from_documents(
-    rules_docs, embeddings, client=supabase, table_name="rules", show_progress=True)
+    supa_trainer("rules", rules_docs, supabase)
 elif rules == "n":
     print("Not training rules data")
     rules_docs = []
@@ -64,9 +63,7 @@ if cards == "y":
     card_docs = loader.load()
     print("loader loaded")
     os.remove(cards_location)
-    SupabaseVectorStore.from_documents(
-        card_docs, embeddings, client=supabase, table_name="cards", 
-        show_progress=True)
+    supa_trainer("cards", card_docs, supabase)
 elif cards == "n":
     print("Not training cards")
     card_docs = []
