@@ -31,12 +31,18 @@ else:
 # or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
-    loader = TextLoader("../MagicRulesJune16.txt")
+    rules_file = magic_cards_loader()
+    rules_location = "./rules.txt"
+    with open(rules_location, 'w') as file:
+        json.dump(rules_file, file, indent=1, ensure_ascii=False)
+        print(f'{rules_location} saved')
+    loader = TextLoader(rules_location)
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, 
                                                    chunk_overlap=200, 
                                                    length_function = len)
     rules_docs = text_splitter.split_documents(documents)
+    os.remove(rules_location)
     SupabaseVectorStore.from_documents(
     rules_docs, embeddings, client=supabase, table_name="rules", show_progress=True)
 elif rules == "n":
@@ -48,15 +54,16 @@ else:
 cards = input("Do you want to train cards? y/n: ")
 if cards == "y":
     finished_file = magic_cards_loader()
-    with open('./finished_file_new.json', 'w') as file:
+    cards_location = "./merged_file.json"
+    with open(cards_location, 'w') as file:
         json.dump(finished_file, file, indent=1, ensure_ascii=False)
-        print('new finsish_file created')
+        print(f'{cards_location} saved')
     loader = JSONLoader(
-        file_path="./finished_file_new.json",
+        file_path=cards_location,
         jq_schema='.[] | tostring')
     card_docs = loader.load()
     print("loader loaded")
-    os.remove("./finished_file_new.json")
+    os.remove(cards_location)
     SupabaseVectorStore.from_documents(
         card_docs, embeddings, client=supabase, table_name="cards", 
         show_progress=True)
