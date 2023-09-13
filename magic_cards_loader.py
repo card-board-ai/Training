@@ -1,4 +1,3 @@
-import json
 from external_comm import downloader
 
 rulings_dict = {}
@@ -44,18 +43,22 @@ def json_merger():
             if 'card_faces' in item: #removes the prop in the nested card faces
                 for face in item['card_faces']:
                     face.pop(prop, None)
-    # Write the merged data to a new file
-    with open('../finished_file_new.json', 'w') as file:
-        json.dump(file_b, file, indent=1, ensure_ascii=False)
-        print('new finsish_file created')
+    # old code for write the merged data to a new file
+    # with open('../finished_file_new.json', 'w') as file:
+    #     json.dump(file_b, file, indent=1, ensure_ascii=False)
+    #     print('new finsish_file created')
+    return file_b
 
-# https://scryfall.com/docs/api/bulk-data/all
-fetched_data = downloader("https://api.scryfall.com/bulk-data",
+def magic_cards_loader():
+    # https://scryfall.com/docs/api/bulk-data/all
+    fetched_data = downloader("https://api.scryfall.com/bulk-data",
                           "scryfall_bulk_data", "json")
-for item in fetched_data['data']:
-    if item['type'] == "oracle_cards":
-        file_b = downloader(item['download_uri'], item['type'], "json")
-    elif item['type'] == "rulings":
-        file_a = downloader(item['download_uri'], item['type'], "json")
-
-json_merger()
+    for item in fetched_data['data']:
+        if item['type'] == "oracle_cards":
+            global file_b
+            file_b = downloader(item['download_uri'], item['type'], "json")
+        elif item['type'] == "rulings":
+            global file_a
+            file_a = downloader(item['download_uri'], item['type'], "json")
+    json_merger()
+    return file_b
