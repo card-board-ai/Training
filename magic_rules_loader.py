@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from simple_term_menu import TerminalMenu
 import requests
-from external_comm import downloader
+from external_comm import web_downloader
 
 rules_page = requests.get("https://magic.wizards.com/en/rules")
 file_links = []
@@ -17,8 +17,8 @@ def magic_rules_loader():
     if len(file_links) > 1:
         terminal_menu = TerminalMenu(file_links)
         choice_index = terminal_menu.show()
-        return downloader(file_links[choice_index], "rules", "txt")
+        return web_downloader(file_links[choice_index], "rules", "txt")
     elif file_links.count == 0:
         raise Exception ("0 text files paresed from magic rules website")
     else:
-        return downloader(file_links[0], "rules", "txt")
+        return web_downloader(file_links[0], "rules", "txt")

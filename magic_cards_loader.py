@@ -1,4 +1,4 @@
-from external_comm import downloader
+from external_comm import web_downloader
 
 rulings_dict = {}
 exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
@@ -51,14 +51,14 @@ def json_merger():
 
 def magic_cards_loader():
     # https://scryfall.com/docs/api/bulk-data/all
-    fetched_data = downloader("https://api.scryfall.com/bulk-data",
+    fetched_data = web_downloader("https://api.scryfall.com/bulk-data",
                           "scryfall_bulk_data", "json")
     for item in fetched_data['data']:
         if item['type'] == "oracle_cards":
             global file_b
-            file_b = downloader(item['download_uri'], item['type'], "json")
+            file_b = web_downloader(item['download_uri'], item['type'], "json")
         elif item['type'] == "rulings":
             global file_a
-            file_a = downloader(item['download_uri'], item['type'], "json")
+            file_a = web_downloader(item['download_uri'], item['type'], "json")
     json_merger()
     return file_b
