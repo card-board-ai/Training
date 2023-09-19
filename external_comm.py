@@ -27,7 +27,7 @@ def supa_trainer(table, documents, supa_client, supa_auth, file, file_format):
     dbwipe_response = requests.post(config.get('Supabase', 'table_wipe_url'), 
                              headers=headers, json=data)
     print("vectorDbWipe server respons =" + dbwipe_response)
-    up_response = supa_client.storage.from_('training documents').upload(f"/{table}/{table}.{file_format}", file)
+    up_response = supa_client.storage.from_('training documents').upload(f"/{table}/{table}.{file_format}", file)  # noqa: E501
     print("uploading to supabase respons=" + up_response)
     SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
                                        table_name=table, show_progress=True)
