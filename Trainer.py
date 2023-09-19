@@ -7,6 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import TextLoader
 from langchain.document_loaders import JSONLoader
 from magic_cards_loader import magic_cards_loader
+from magic_rules_loader import magic_rules_loader
 from external_comm import supa_trainer
 
 config = configparser.ConfigParser()
@@ -16,11 +17,13 @@ embeddings = OpenAIEmbeddings(openai_api_key=config.get('OpenAI', 'key'))
 
 environment = input("Which environment are we training, local or prod?: ")
 if environment == "local":
+    key = config.get('Supabase', 'local_key')
     supabase: Client = create_client(config.get('Supabase', 'local_url'), 
-                                     config.get('Supabase', 'local_key'))
+                                     key)
 elif environment == "prod":
+    key = config.get('Supabase', 'prod_private_key')
     supabase: Client = create_client(config.get('Supabase', 'prod_url'), 
-                                     config.get('Supabase', 'prod_private_key'))
+                                     key)
 elif environment == "none":
     pass
 else:
@@ -31,10 +34,10 @@ else:
 # or line breaks and other stuff
 rules = input("Do you want to train Rules? y/n: ")
 if rules == "y":
-    rules_file = magic_cards_loader()
+    rules_file = magic_rules_loader()
     rules_location = "./rules.txt"
-    with open(rules_location, 'w') as file:
-        json.dump(rules_file, file, indent=1, ensure_ascii=False)
+    with open(rules_location, 'w') as f:
+        f.write(str(rules_file))
         print(f'{rules_location} saved')
     loader = TextLoader(rules_location)
     documents = loader.load()
@@ -42,8 +45,8 @@ if rules == "y":
                                                    chunk_overlap=200, 
                                                    length_function = len)
     rules_docs = text_splitter.split_documents(documents)
+    supa_trainer("rules", rules_docs, supabase, key, rules_file, "txt")
     os.remove(rules_location)
-    supa_trainer("rules", rules_docs, supabase)
 elif rules == "n":
     print("Not training rules data")
     rules_docs = []
