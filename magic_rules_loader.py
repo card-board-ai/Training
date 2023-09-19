@@ -17,8 +17,10 @@ def magic_rules_loader():
     if len(file_links) > 1:
         terminal_menu = TerminalMenu(file_links)
         choice_index = terminal_menu.show()
-        return web_downloader(file_links[choice_index], "rules", "txt")
+        rules_file = web_downloader(file_links[choice_index], "rules", "txt")
+        return rules_file
     elif file_links.count == 0:
         raise Exception ("0 text files paresed from magic rules website")
     else:
-        return web_downloader(file_links[0], "rules", "txt")
+        rules_file = web_downloader(file_links[0], "rules", "txt")
+        return rules_file
