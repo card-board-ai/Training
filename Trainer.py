@@ -6,8 +6,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import TextLoader
 from langchain.document_loaders import JSONLoader
-from magic_cards_loader import magic_cards_loader
-from magic_rules_loader import magic_rules_loader
+from mtg import magic_rules_loader, magic_cards_loader
 from external_comm import supa_trainer
 
 config = configparser.ConfigParser()
