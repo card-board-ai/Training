@@ -44,7 +44,8 @@ if rules == "y":
                                                    chunk_overlap=200, 
                                                    length_function = len)
     rules_docs = text_splitter.split_documents(documents)
-    supa_trainer("magic_rules", rules_docs, supabase, key, rules_file, "txt")
+    supa_trainer("magic_rules", "Magic The Gathering", supabase, key,
+                rules_file, "txt", rules_docs)
     os.remove(rules_location)
 elif rules == "n":
     print("Not training rules data")
