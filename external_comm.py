@@ -52,6 +52,8 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
             .execute()
         SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
                                         table_name=table, show_progress=True)
+    else:
+        print("rules does not need to be trained")
 
 def hash (file):
     sum = blake2b(file).hexdigest()
