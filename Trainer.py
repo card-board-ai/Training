@@ -66,8 +66,7 @@ if cards == "y":
     card_docs = loader.load()
     print("loader loaded")
     os.remove(cards_location)
-    supa_trainer("magic_cards", "Magic The Gathering",
-                 supabase, key, finished_file, "json", card_docs)
+    supa_trainer("cards", card_docs, supabase)
 elif cards == "n":
     print("Not training cards")
     card_docs = []
