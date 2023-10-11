@@ -1,4 +1,4 @@
-from external_comm import web_downloader
+import external_comm
 from bs4 import BeautifulSoup
 from simple_term_menu import TerminalMenu
 import requests
@@ -20,7 +20,7 @@ exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
                           'collector_number', 'purchase_uris']
 exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
 
-def json_merger():
+def _json_merger():
     # Iterate over FileA(rullings) and create a dictionary of rulings based on oracle_id
     for item in file_a:
         oracle_id = item['oracle_id']
@@ -54,16 +54,18 @@ def json_merger():
 
 def magic_cards_loader():
     # https://scryfall.com/docs/api/bulk-data/all
-    fetched_data = web_downloader("https://api.scryfall.com/bulk-data",
+    fetched_data = external_comm.web_downloader("https://api.scryfall.com/bulk-data",
                           "scryfall_bulk_data", "json")
     for item in fetched_data['data']:
         if item['type'] == "oracle_cards":
             global file_b
-            file_b = web_downloader(item['download_uri'], item['type'], "json")
+            file_b = external_comm.web_downloader(item['download_uri'], 
+                                                  item['type'], "json")
         elif item['type'] == "rulings":
             global file_a
-            file_a = web_downloader(item['download_uri'], item['type'], "json")
-    json_merger()
+            file_a = external_comm.web_downloader(item['download_uri'], 
+                                                  item['type'], "json")
+    _json_merger()
     return file_b
 
 #RULES
@@ -81,10 +83,12 @@ def magic_rules_loader():
     if len(file_links) > 1:
         terminal_menu = TerminalMenu(file_links)
         choice_index = terminal_menu.show()
-        rules_file = web_downloader(file_links[choice_index], "rules", "txt")
+        rules_file = external_comm.web_downloader(file_links[choice_index], 
+                                                  "rules", 
+                                                  "txt")
         return rules_file
     elif file_links.count == 0:
         raise Exception ("0 text files paresed from magic rules website")
     else:
-        rules_file = web_downloader(file_links[0], "rules", "txt")
+        rules_file = external_comm.web_downloader(file_links[0], "rules", "txt")
         return rules_file
