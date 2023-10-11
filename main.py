@@ -16,21 +16,21 @@ elif environment == "prod":
     key = config.get('Supabase', 'prod_private_key')
     supabase: Client = create_client(config.get('Supabase', 'prod_url'), 
                                      key)
-elif environment == "none":
-    pass
 else:
     raise Exception("That is not an available environment")
 
 games = supabase.table('games').select("training_file").execute()
 menu_options = ["Select All"]
+functions = []
 
 for item in games.data:
     file = item.get('training_file')
     module = importlib.import_module(file)
-    for attribute_name in dir(module):
+    for attribute_name in dir(module): # based on https://stackoverflow.com/questions/66084762/call-function-from-another-file-without-import-clause
         attribute = getattr(module, attribute_name)
         if isfunction(attribute) and not attribute_name.startswith("_"):
             menu_options.append(attribute.__name__)
+            functions.append(attribute)
 
 terminal_menu = TerminalMenu(
     menu_options,
@@ -40,7 +40,11 @@ terminal_menu = TerminalMenu(
 choice_index = terminal_menu.show()
 print(choice_index)
 print(terminal_menu.chosen_menu_entries)
+print(functions)
 
-
-
-# based on https://stackoverflow.com/questions/66084762/call-function-from-another-file-without-import-clause
+if choice_index[0] == 0:
+    for item in functions:
+        item()
+else:
+    for item in choice_index:
+        functions[item - 1]()
