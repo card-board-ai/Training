@@ -11,6 +11,7 @@ config.read('keys.cfg')
 
 embeddings = OpenAIEmbeddings(openai_api_key=config.get('OpenAI', 'key'))
 
+
 def web_downloader(website, file_name, file_format):
     query_parameters = {"downloadformat": f"{file_format}"}
     response = requests.get(website, params=query_parameters)
@@ -22,8 +23,8 @@ def web_downloader(website, file_name, file_format):
     else:
         raise Exception("web_downloader can not handle that file type")
 
+
 def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documents):
-    
     data, count = supa_client.table("training_ledger") \
         .select('hash') \
         .eq('db_table', table) \
@@ -35,11 +36,9 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
     if compare(data, new_file_hash):
         print(f"{table} is being trained")
         headers = {"Content-Type": "application/json", "Authorization": str(supa_auth)}
-        data = {
-        "table": table
-        }
+        data = {"table": table}
         dbwipe_response = requests.post(config.get('Supabase', 'table_wipe_url'), 
-                                headers=headers, json=data)
+                                        headers=headers, json=data)
         print("vectorDbWipe server respons =" + str(dbwipe_response))
         filename = f"{table}-{datetime.now(timezone.utc)}.{file_format}"
         print("filename = " + filename)
@@ -53,22 +52,23 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
                     "db_table": table, "game": game}) \
             .execute()
         SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
-                                        table_name=table, show_progress=True)
+                                           table_name=table, show_progress=True)
     else:
         print(f"{table} does not need to be trained")
+
 
 def hash (file):
     sum = blake2b(file).hexdigest()
     return sum
 
+
 def compare (previous, current):
     if previous[1]:
-    # Check the provided hash against the first hash in the response data
+        # Check the provided hash against the first hash in the response data
         if previous[1][0].get('hash') == current:
             return False
         else:
             return True
     else:
-    # Handle the case where there are no hash values in the response
+        # Handle the case where there are no hash values in the response
         return True
-
