@@ -1,3 +1,4 @@
+from rich import print
 from datetime import datetime, timezone
 import requests
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -32,6 +33,7 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
     new_file_hash = hash(file)
 
     if compare(data, new_file_hash):
+        print(f"{table} is being trained")
         headers = {"Content-Type": "application/json", "Authorization": str(supa_auth)}
         data = {
         "table": table
@@ -53,7 +55,7 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
                                         table_name=table, show_progress=True)
     else:
-        print("rules does not need to be trained")
+        print(f"{table} does not need to be trained")
 
 def hash (file):
     sum = blake2b(file).hexdigest()
