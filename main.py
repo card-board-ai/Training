@@ -9,17 +9,17 @@ config.read('keys.cfg')
 
 environment = input("Which environment are we training, local or prod?: ")
 if environment == "local":
-    key = config.get('Supabase', 'local_key')
-    supabase: Client = create_client(config.get('Supabase', 'local_url'), 
-                                     key)
+    supa_key = config.get('Supabase', 'local_key')
+    supa_client: Client = create_client(config.get('Supabase', 'local_url'),
+                                        supa_key)
 elif environment == "prod":
-    key = config.get('Supabase', 'prod_private_key')
-    supabase: Client = create_client(config.get('Supabase', 'prod_url'), 
-                                     key)
+    supa_key = config.get('Supabase', 'prod_private_key')
+    supa_client: Client = create_client(config.get('Supabase', 'prod_url'),
+                                        supa_key)
 else:
     raise Exception("That is not an available environment")
 
-games = supabase.table('games').select("training_file").execute()
+games = supa_client.table('games').select("training_file").execute()
 menu_options = ["Select All"]
 functions = []
 
