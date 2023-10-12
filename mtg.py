@@ -2,6 +2,9 @@ import external_comm
 from bs4 import BeautifulSoup
 from simple_term_menu import TerminalMenu
 import requests
+import os
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import TextLoader
 
 rulings_dict = {}
 exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
@@ -19,6 +22,24 @@ exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
                       'games', 'foil', 'nonfoil', 'finshes', 'set',
                       'collector_number', 'purchase_uris']
 exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
+
+
+def magic_rules(supa_client, supa_key):
+    rules_file = _magic_rules_loader()
+    rules_location = "./rules.txt"
+    with open(rules_location, 'w') as f:
+        f.write(str(rules_file))
+        print(f'{rules_location} saved')
+    loader = TextLoader(rules_location)
+    documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,
+                                                   chunk_overlap=200,
+                                                   length_function = len)
+    rules_docs = text_splitter.split_documents(documents)
+    external_comm.supa_trainer("magic_rules", "Magic The Gathering", supa_client, supa_key,
+                               rules_file, "txt", rules_docs)
+    os.remove(rules_location)
+
 
 def _json_merger():
     # Iterate over FileA(rullings) and create a dictionary of rulings based on oracle_id
@@ -53,7 +74,7 @@ def _json_merger():
     return file_b
 
 
-def magic_cards_loader():
+def _magic_cards_loader():
     # https://scryfall.com/docs/api/bulk-data/all
     fetched_data = external_comm.web_downloader("https://api.scryfall.com/bulk-data",
                           "scryfall_bulk_data", "json")
@@ -76,7 +97,7 @@ rules_page = requests.get("https://magic.wizards.com/en/rules")
 file_links = []
 
 
-def magic_rules_loader():
+def _magic_rules_loader():
     soup = BeautifulSoup(rules_page.content, "html.parser")
     links = soup.find_all("a")
     for link in links:
