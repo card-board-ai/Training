@@ -26,7 +26,8 @@ functions = []
 for item in games.data:
     file = item.get('training_file')
     module = importlib.import_module(file)
-    for attribute_name in dir(module): # based on https://stackoverflow.com/questions/66084762/call-function-from-another-file-without-import-clause
+    # based on https://stackoverflow.com/questions/66084762/call-function-from-another-file-without-import-clause
+    for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
         if isfunction(attribute) and not attribute_name.startswith("_"):
             menu_options.append(attribute.__name__)
