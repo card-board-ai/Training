@@ -5,19 +5,19 @@ import requests
 
 rulings_dict = {}
 exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
-                          'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri',
-                          'layout', 'highres_image', 'image_status', 'image_uris',
-                          'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri',
-                          'rulings_uri', 'prints_search_uri', 'card_back_id',
-                          'flavor_text', 'artist_ids', 'illustration_id',
-                          'border_color', 'frame', 'full_art', 'textless',
-                          'booster', 'story_spotlight', 'edhrec_rank', 'prices',
-                          'related_uris', 'tcgplayer_infinite_articles',
-                          'tcgplayer_infinite_decks', 'edhrec', 'security_stamp',
-                          'preview', 'penny_rank', 'variation', 'arena_id', 'oversized',
-                          'promo', 'reprint', 'variation', 'all_parts', 'artist_id',
-                          'games', 'foil', 'nonfoil', 'finshes', 'set',
-                          'collector_number', 'purchase_uris']
+                      'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri',
+                      'layout', 'highres_image', 'image_status', 'image_uris',
+                      'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri',
+                      'rulings_uri', 'prints_search_uri', 'card_back_id',
+                      'flavor_text', 'artist_ids', 'illustration_id',
+                      'border_color', 'frame', 'full_art', 'textless',
+                      'booster', 'story_spotlight', 'edhrec_rank', 'prices',
+                      'related_uris', 'tcgplayer_infinite_articles',
+                      'tcgplayer_infinite_decks', 'edhrec', 'security_stamp',
+                      'preview', 'penny_rank', 'variation', 'arena_id', 'oversized',
+                      'promo', 'reprint', 'variation', 'all_parts', 'artist_id',
+                      'games', 'foil', 'nonfoil', 'finshes', 'set',
+                      'collector_number', 'purchase_uris']
 exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
 
 def _json_merger():
@@ -29,8 +29,8 @@ def _json_merger():
             rulings_dict[oracle_id] = []
         rulings_dict[oracle_id].append(comment)
 
-    for item in file_b[:]: #iterating over each card in file b
-        #This iterates over each item in 'exclude_set_types', removing on match
+    for item in file_b[:]:  # iterating over each card in file b
+        # This iterates over each item in 'exclude_set_types', removing on match
         for prop in exclude_set_types:
             if item['set_type'] == prop:
                 file_b.remove(item)
@@ -38,12 +38,12 @@ def _json_merger():
 
     for item in file_b:
         oracle_id = item['oracle_id']
-        if item['oracle_id'] in rulings_dict: #This add the rulings to each card
+        if item['oracle_id'] in rulings_dict:  # This add the rulings to each card
             item['rulings'] = rulings_dict[oracle_id]
-        #This removes the properties in 'exclude_properties' from each card
+        # This removes the properties in 'exclude_properties' from each card
         for prop in exclude_properties:
             item.pop(prop, None)
-            if 'card_faces' in item: #removes the prop in the nested card faces
+            if 'card_faces' in item:  # removes the prop in the nested card faces
                 for face in item['card_faces']:
                     face.pop(prop, None)
     # old code for write the merged data to a new file
@@ -51,6 +51,7 @@ def _json_merger():
     #     json.dump(file_b, file, indent=1, ensure_ascii=False)
     #     print('new finsish_file created')
     return file_b
+
 
 def magic_cards_loader():
     # https://scryfall.com/docs/api/bulk-data/all
@@ -68,9 +69,12 @@ def magic_cards_loader():
     _json_merger()
     return file_b
 
-#RULES
+# RULES
+
+
 rules_page = requests.get("https://magic.wizards.com/en/rules")
 file_links = []
+
 
 def magic_rules_loader():
     soup = BeautifulSoup(rules_page.content, "html.parser")
