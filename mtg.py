@@ -1,31 +1,47 @@
-import external_comm
-from bs4 import BeautifulSoup
-from simple_term_menu import TerminalMenu
-import requests
-import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import JSONLoader
 from langchain.document_loaders import TextLoader
+from simple_term_menu import TerminalMenu
+from bs4 import BeautifulSoup
+import external_comm
+import requests
+import json
+import os
 
-rulings_dict = {}
-exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
-                      'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri',
-                      'layout', 'highres_image', 'image_status', 'image_uris',
-                      'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri',
-                      'rulings_uri', 'prints_search_uri', 'card_back_id',
-                      'flavor_text', 'artist_ids', 'illustration_id',
-                      'border_color', 'frame', 'full_art', 'textless',
-                      'booster', 'story_spotlight', 'edhrec_rank', 'prices',
-                      'related_uris', 'tcgplayer_infinite_articles',
-                      'tcgplayer_infinite_decks', 'edhrec', 'security_stamp',
-                      'preview', 'penny_rank', 'variation', 'arena_id', 'oversized',
-                      'promo', 'reprint', 'variation', 'all_parts', 'artist_id',
-                      'games', 'foil', 'nonfoil', 'finshes', 'set',
-                      'collector_number', 'purchase_uris']
-exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
 
+def magic_cards(supa_client, supa_key):
+    finished_file = _magic_cards_loader()
+    cards_location = "./merged_file.json"
+    with open(cards_location, 'w') as file:
+        json.dump(finished_file, file, indent=1, ensure_ascii=False)
+        print(f'{cards_location} saved')
+    loader = JSONLoader(
+        file_path=cards_location,
+        jq_schema='.[] | tostring')
+    card_docs = loader.load()
+    print("loader loaded")
+    os.remove(cards_location)
+    external_comm.supa_trainer("cards", "Magic The Gathering", supa_client, supa_key,
+                               finished_file, "json", card_docs)
 
 
 def _json_merger(m_file_a, m_file_b):
+    exclude_properties = ['id', 'lang', 'multiverse_ids', 'mtgo_id', 'mtgo_foil_id',
+                          'tcgplayer_id', 'cardmarket_id', 'uri', 'scryfall_uri',
+                          'layout', 'highres_image', 'image_status', 'image_uris',
+                          'set_id', 'set_uri', 'set_search_uri', 'scryfall_set_uri',
+                          'rulings_uri', 'prints_search_uri', 'card_back_id',
+                          'flavor_text', 'artist_ids', 'illustration_id',
+                          'border_color', 'frame', 'full_art', 'textless',
+                          'booster', 'story_spotlight', 'edhrec_rank', 'prices',
+                          'related_uris', 'tcgplayer_infinite_articles',
+                          'tcgplayer_infinite_decks', 'edhrec', 'security_stamp',
+                          'preview', 'penny_rank', 'variation', 'arena_id', 'oversized',
+                          'promo', 'reprint', 'variation', 'all_parts', 'artist_id',
+                          'games', 'foil', 'nonfoil', 'finshes', 'set',
+                          'collector_number', 'purchase_uris']
+    exclude_set_types = ['memorabilia', 'minigame', 'funny', 'token']
+    rulings_dict = {}
     # Iterate over FileA(rullings) and create a dictionary of rulings based on oracle_id
     for item in m_file_a:
         oracle_id = item['oracle_id']
@@ -51,10 +67,6 @@ def _json_merger(m_file_a, m_file_b):
             if 'card_faces' in item:  # removes the prop in the nested card faces
                 for face in item['card_faces']:
                     face.pop(prop, None)
-    # old code for write the merged data to a new file
-    # with open('../finished_file_new.json', 'w') as file:
-    #     json.dump(file_b, file, indent=1, ensure_ascii=False)
-    #     print('new finsish_file created')
     return m_file_b
 
 
@@ -94,16 +106,14 @@ def magic_rules(supa_client, supa_key):
                                                    chunk_overlap=200,
                                                    length_function=len)
     rules_docs = text_splitter.split_documents(documents)
+    os.remove(rules_location)
     external_comm.supa_trainer("magic_rules", "Magic The Gathering", supa_client, supa_key,
                                rules_file, "txt", rules_docs)
-    os.remove(rules_location)
-    
-
-rules_page = requests.get("https://magic.wizards.com/en/rules")
-file_links = []
 
 
 def _magic_rules_loader():
+    rules_page = requests.get("https://magic.wizards.com/en/rules")
+    file_links = []
     soup = BeautifulSoup(rules_page.content, "html.parser")
     links = soup.find_all("a")
     for link in links:
