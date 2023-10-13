@@ -31,7 +31,7 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         .order('created_at', desc=True) \
         .execute()
     print("hash values" + str(data))
-    new_file_hash = hash(file)
+    new_file_hash = gen_hash(file)
 
     if compare(data, new_file_hash):
         print(f"{table} is being trained")
@@ -57,9 +57,8 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         print(f"{table} does not need to be trained")
 
 
-def hash (file):
-    sum = blake2b(file).hexdigest()
-    return sum
+def gen_hash (file):
+    return blake2b(file).hexdigest()
 
 
 def compare (previous, current):
