@@ -1,9 +1,10 @@
+from supabase.client import Client, create_client
+from simple_term_menu import TerminalMenu
+from inspect import isfunction
 import configparser
 import importlib
 import inspect
-from inspect import isfunction
-from supabase.client import Client, create_client
-from simple_term_menu import TerminalMenu
+
 
 config = configparser.ConfigParser()
 config.read('keys.cfg')
@@ -53,12 +54,12 @@ print(functions)
 def build_args(function):
     signature = inspect.signature(function)
     parameters = signature.parameters
-    args = {}
+    func_args = {}
     for param in parameters:
         if param == "supa_client":
-            args.update({param: supa_client})
+            func_args.update({param: supa_client})
         elif param == "supa_key":
-            args.update({param: supa_key})
+            func_args.update({param: supa_key})
     return args
 
 
