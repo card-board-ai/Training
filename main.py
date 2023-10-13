@@ -1,5 +1,6 @@
 import configparser
 import importlib
+import inspect
 from inspect import isfunction
 from supabase.client import Client, create_client
 from simple_term_menu import TerminalMenu
@@ -19,10 +20,14 @@ elif environment == "prod":
 else:
     raise Exception("That is not an available environment")
 
+
+# grab the file names from the db
 games = supa_client.table('games').select("training_file").execute()
 menu_options = ["Select All"]
 functions = []
 
+
+# this iterates through the provided fil names from db and creates lists for the menu and function execution
 for item in games.data:
     file = item.get('training_file')
     module = importlib.import_module(file)
@@ -33,6 +38,7 @@ for item in games.data:
             menu_options.append(attribute.__name__)
             functions.append(attribute)
 
+# display cli menu
 terminal_menu = TerminalMenu(
     menu_options,
     title='',
@@ -43,9 +49,28 @@ print(choice_index)
 print(terminal_menu.chosen_menu_entries)
 print(functions)
 
+
+def build_args(function):
+    signature = inspect.signature(function)
+    parameters = signature.parameters
+    args = {}
+    for param in parameters:
+        if param == "supa_client":
+            args.update({param: supa_client})
+        elif param == "supa_key":
+            args.update({param: supa_key})
+    return args
+
+
+"""
+if the choice includes 'Select All' then execute all
+available functions otherwise iterate through fireing the chossen functions
+"""
 if choice_index[0] == 0:
     for item in functions:
-        item()
+        args = build_args(item)
+        item(**args)
 else:
     for item in choice_index:
-        functions[item - 1]()
+        args = build_args(functions[item - 1])
+        functions[item - 1](**args)

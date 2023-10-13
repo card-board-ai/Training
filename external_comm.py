@@ -46,9 +46,9 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         print("uploading to supabase url" + str(up_response))    
         supa_list = supa_client.storage.from_(str(table)).list()
         print(supa_list)
-        id = next((item['id'] for item in supa_list if item['name'] == filename), None)
+        file_id = next((item['id'] for item in supa_list if item['name'] == filename), None)
         data, count = supa_client.table('training_ledger') \
-            .insert({"file_id": id, "file_name": filename, "hash": new_file_hash, 
+            .insert({"file_id": file_id, "file_name": filename, "hash": new_file_hash,
                     "db_table": table, "game": game}) \
             .execute()
         SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
@@ -61,7 +61,7 @@ def gen_hash (file):
     return blake2b(file).hexdigest()
 
 
-def compare (previous, current):
+def compare(previous, current):
     if previous[1]:
         # Check the provided hash against the first hash in the response data
         if previous[1][0].get('hash') == current:
