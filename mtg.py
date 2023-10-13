@@ -40,24 +40,23 @@ def magic_rules(supa_client, supa_key):
                                rules_file, "txt", rules_docs)
     os.remove(rules_location)
 
-
-def _json_merger():
+def _json_merger(m_file_a, m_file_b):
     # Iterate over FileA(rullings) and create a dictionary of rulings based on oracle_id
-    for item in file_a:
+    for item in m_file_a:
         oracle_id = item['oracle_id']
         comment = item['comment']
         if oracle_id not in rulings_dict:
             rulings_dict[oracle_id] = []
         rulings_dict[oracle_id].append(comment)
 
-    for item in file_b[:]:  # iterating over each card in file b
+    for item in m_file_b[:]:  # iterating over each card in file b
         # This iterates over each item in 'exclude_set_types', removing on match
         for prop in exclude_set_types:
             if item['set_type'] == prop:
-                file_b.remove(item)
+                m_file_b.remove(item)
                 break
 
-    for item in file_b:
+    for item in m_file_b:
         oracle_id = item['oracle_id']
         if item['oracle_id'] in rulings_dict:  # This add the rulings to each card
             item['rulings'] = rulings_dict[oracle_id]
@@ -71,24 +70,25 @@ def _json_merger():
     # with open('../finished_file_new.json', 'w') as file:
     #     json.dump(file_b, file, indent=1, ensure_ascii=False)
     #     print('new finsish_file created')
-    return file_b
+    return m_file_b
 
 
 def _magic_cards_loader():
     # https://scryfall.com/docs/api/bulk-data/all
     fetched_data = external_comm.web_downloader("https://api.scryfall.com/bulk-data",
-                          "scryfall_bulk_data", "json")
+                                                "scryfall_bulk_data", "json")
+    file_b = None
+    file_a = None
     for item in fetched_data['data']:
         if item['type'] == "oracle_cards":
-            global file_b
             file_b = external_comm.web_downloader(item['download_uri'], 
                                                   item['type'], "json")
         elif item['type'] == "rulings":
-            global file_a
             file_a = external_comm.web_downloader(item['download_uri'], 
                                                   item['type'], "json")
-    _json_merger()
-    return file_b
+
+    fin_file_b = _json_merger(file_b, file_a)
+    return fin_file_b
 
 # RULES
 
