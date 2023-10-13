@@ -75,7 +75,11 @@ def _magic_cards_loader():
     fin_file_b = _json_merger(file_b, file_a)
     return fin_file_b
 
-# RULES
+
+# RULES - TODO
+""" have this text splitter split each rule individually instead of in deefined chunks
+I believe you can have is split into chunks based on when it finds a formated numbers
+or line breaks and other stuff """
 
 
 def magic_rules(supa_client, supa_key):
