@@ -21,7 +21,7 @@ def magic_cards(supa_client, supa_key):
     card_docs = loader.load()
     print("loader loaded")
     os.remove(cards_location)
-    external_comm.supa_trainer("cards", "Magic The Gathering", supa_client, supa_key,
+    external_comm.supa_trainer("magic_cards", "Magic The Gathering", supa_client, supa_key,
                                finished_file, "json", card_docs)
 
 
