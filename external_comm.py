@@ -1,6 +1,3 @@
-from rich import print
-from datetime import datetime, timezone
-import requests
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import SupabaseVectorStore
 from datetime import datetime, timezone
@@ -16,15 +13,21 @@ embeddings = OpenAIEmbeddings(openai_api_key=config.get('OpenAI', 'key'))
 
 
 def web_downloader(website, file_name, file_format):
-    query_parameters = {"downloadformat": f"{file_format}"}
-    response = requests.get(website, params=query_parameters)
+    if file_format == "json" or file_format == "txt":
+        query_parameters = {"downloadformat": f"{file_format}"}
+        response = requests.get(website, params=query_parameters)
+    elif file_format == "pdf":
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0'
+        }
+        response = requests.get(website, headers=headers, stream=True)
+    else:
+        raise Exception("web_downloader can not handle that file type")
     print(f"{file_name} done fetching")
     if file_format == "json":
         return response.json()
-    elif file_format == "txt":
+    elif file_format == "txt" or file_format == "pdf":
         return response.content
-    else:
-        raise Exception("web_downloader can not handle that file type")
 
 
 def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documents):
