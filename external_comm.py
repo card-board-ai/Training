@@ -17,6 +17,7 @@ def web_downloader(website, file_name, file_format):
         query_parameters = {"downloadformat": f"{file_format}"}
         response = requests.get(website, params=query_parameters)
     elif file_format == "pdf":
+        # https://techbit.ca/2022/12/downloading-pdf-files-using-python/
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0'
         }
@@ -48,9 +49,13 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         filename = f"{table}-{datetime.now(timezone.utc)}.{file_format}"
         print("filename = " + filename)
         bucket_list = supa_client.storage.list_buckets()
-        if table not in bucket_list:
+        print(bucket_list)
+        for bucket in bucket_list:
+            if bucket.name == table:
+                break
+        else:
             supa_client.storage.create_bucket(table)
-        up_response = supa_client.storage.from_(str(table)).upload(filename, file)
+        up_response = supa_client.storage.from_(str(table)).upload(file=file, path=filename)
         print("uploading to supabase url" + str(up_response))    
         supa_list = supa_client.storage.from_(str(table)).list()
         print(supa_list)
