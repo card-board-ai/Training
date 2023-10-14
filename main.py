@@ -46,9 +46,6 @@ terminal_menu = TerminalMenu(
     multi_select=True,
     show_multi_select_hint=True,)
 choice_index = terminal_menu.show()
-print(choice_index)
-print(terminal_menu.chosen_menu_entries)
-print(functions)
 
 
 def build_args(function):
@@ -60,7 +57,7 @@ def build_args(function):
             func_args.update({param: supa_client})
         elif param == "supa_key":
             func_args.update({param: supa_key})
-    return args
+    return func_args
 
 
 """
