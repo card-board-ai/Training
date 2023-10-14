@@ -47,6 +47,9 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         print("vectorDbWipe server respons =" + str(dbwipe_response))
         filename = f"{table}-{datetime.now(timezone.utc)}.{file_format}"
         print("filename = " + filename)
+        bucket_list = supa_client.storage.list_buckets()
+        if table not in bucket_list:
+            supa_client.storage.create_bucket(table)
         up_response = supa_client.storage.from_(str(table)).upload(filename, file)
         print("uploading to supabase url" + str(up_response))    
         supa_list = supa_client.storage.from_(str(table)).list()
