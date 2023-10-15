@@ -1,0 +1,91 @@
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import SupabaseVectorStore
+from datetime import datetime, timezone
+from hashlib import blake2b
+from rich import print
+import configparser
+import requests
+import json
+
+config = configparser.ConfigParser()
+config.read('keys.cfg')
+
+embeddings = OpenAIEmbeddings(openai_api_key=config.get('OpenAI', 'key'))
+
+
+def web_downloader(website, file_name, file_format):
+    if file_format == "json" or file_format == "txt":
+        query_parameters = {"downloadformat": f"{file_format}"}
+        response = requests.get(website, params=query_parameters)
+    elif file_format == "pdf":
+        # https://techbit.ca/2022/12/downloading-pdf-files-using-python/
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0'
+        }
+        response = requests.get(website, headers=headers, stream=True)
+    else:
+        raise Exception("web_downloader can not handle that file type")
+    print(f"{file_name} done fetching")
+    if file_format == "json":
+        return response.json()
+    elif file_format == "txt" or file_format == "pdf":
+        return response.content
+
+
+def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documents, file_location):
+    data, count = supa_client.table("training_ledger") \
+        .select('hash') \
+        .eq('db_table', table) \
+        .order('created_at', desc=True) \
+        .execute()
+    new_file_hash = gen_hash(file, file_format)
+
+    if compare(data, new_file_hash):
+        print(f"{table} is being trained")
+        headers = {"Content-Type": "application/json", "Authorization": str(supa_auth)}
+        data = {"table": table}
+        dbwipe_response = requests.post(config.get('Supabase', 'table_wipe_url'), 
+                                        headers=headers, json=data)
+        print("vectorDbWipe server respons =" + str(dbwipe_response))
+        filename = f"{table}-{datetime.now(timezone.utc)}.{file_format}"
+        print("filename = " + filename)
+        bucket_list = supa_client.storage.list_buckets()
+        print(bucket_list)
+        for bucket in bucket_list:
+            if bucket.name == table:
+                break
+        else:
+            supa_client.storage.create_bucket(table)
+        up_response = supa_client.storage.from_(str(table)).upload(file=file_location, path=filename)
+        print("uploading to supabase url" + str(up_response))    
+        supa_list = supa_client.storage.from_(str(table)).list()
+        print(supa_list)
+        file_id = next((item['id'] for item in supa_list if item['name'] == filename), None)
+        supa_client.table('training_ledger') \
+            .insert({"file_id": file_id, "file_name": filename, "hash": new_file_hash,
+                    "db_table": table, "game": game}) \
+            .execute()
+        SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
+                                           table_name=table, show_progress=True)
+    else:
+        print(f"{table} does not need to be trained")
+
+
+def gen_hash(file, format: str):
+    if format == "json":
+        encoded = json.dumps(file, sort_keys=True).encode()
+        return blake2b(encoded).hexdigest()
+    else:
+        return blake2b(file).hexdigest()
+
+
+def compare(previous, current):
+    if previous[1]:
+        # Check the provided hash against the first hash in the response data
+        if previous[1][0].get('hash') == current:
+            return False
+        else:
+            return True
+    else:
+        # Handle the case where there are no hash values in the response
+        return True
