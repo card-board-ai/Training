@@ -71,7 +71,7 @@ def _json_merger(m_file_a, m_file_b):
 
 
 def _magic_cards_loader(config):
-    fetched_data = external_comm.web_downloader(config.get('Sources', 'magic_cards'),
+    fetched_data = external_comm.web_downloader(config.get('Sources', 'mtg_cards'),
                                                 "scryfall_bulk_data", "json")
     file_b = None
     file_a = None
@@ -111,7 +111,7 @@ def magic_rules(supa_client, supa_key, config):
 
 
 def _magic_rules_loader(config):
-    rules_page = requests.get(config.get('Source', 'magic_rules'))
+    rules_page = requests.get(config.get('Sources', 'mtg_rules'))
     file_links = []
     soup = BeautifulSoup(rules_page.content, "html.parser")
     links = soup.find_all("a")
