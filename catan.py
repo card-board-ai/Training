@@ -11,8 +11,7 @@ def catan_rules(supa_client, supa_key):
     pdf.write(rules_file)
     loader = PyPDFLoader(rules_location)
     docs = loader.load_and_split()
-    os.remove(rules_location)
     external_comm.supa_trainer("catan_rules", "Settlers of Catan", supa_client, supa_key,
-                               rules_file, "pdf", docs)
+                               rules_file, "pdf", docs, rules_location)
+    os.remove(rules_location)
     print("Catan rules loaded")
-    
