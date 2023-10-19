@@ -1,20 +1,26 @@
 from supabase.client import Client, create_client
 from simple_term_menu import TerminalMenu
+from rich.console import Console
 from inspect import isfunction
 import configparser
 import importlib
 import inspect
 
+console = Console()
 
 config = configparser.ConfigParser()
 config.read('keys.cfg')
 
-environment = input("Which environment are we training, local or prod?: ")
-if environment == "local":
+console.print("Which environment are we training?", style="bold green")
+menu_options = ["Prod", "Local"]
+terminal_menu = TerminalMenu(menu_options)
+env_choice = terminal_menu.show()
+
+if menu_options[env_choice] == "Local":
     supa_key = config.get('Supabase', 'local_key')
     supa_client: Client = create_client(config.get('Supabase', 'local_url'),
                                         supa_key)
-elif environment == "prod":
+elif menu_options[env_choice] == "Prod":
     supa_key = config.get('Supabase', 'prod_private_key')
     supa_client: Client = create_client(config.get('Supabase', 'prod_url'),
                                         supa_key)
