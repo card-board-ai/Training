@@ -71,9 +71,9 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         print(f"{table} does not need to be trained")
 
 
-def gen_hash(file, format: str):
-    if format == "json":
-        encoded = json.dumps(file, sort_keys=True).encode()
+def gen_hash(file, file_format: str):
+    if file_format == "json":
+        encoded = json.dumps(file_format, sort_keys=True).encode()
         return blake2b(encoded).hexdigest()
     else:
         return blake2b(file).hexdigest()
