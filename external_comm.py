@@ -46,7 +46,7 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         .execute()
     new_file_hash = gen_hash(file, file_format)
 
-    if compare(data, new_file_hash):
+    if hash_compare(data, new_file_hash):
         print(f"{table} is being trained")
         headers = {"Content-Type": "application/json", "Authorization": str(supa_auth)}
         data = {"table": table}
@@ -85,7 +85,7 @@ def gen_hash(file, file_format: str):
         return blake2b(file).hexdigest()
 
 
-def compare(previous, current):
+def hash_compare(previous, current):
     if previous[1]:
         # Check the provided hash against the first hash in the response data
         if previous[1][0].get('hash') == current:
