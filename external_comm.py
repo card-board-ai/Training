@@ -14,7 +14,12 @@ embeddings = OpenAIEmbeddings(openai_api_key=config.get('OpenAI', 'key'))
 
 
 def web_downloader(website, file_name, file_format):
-    if file_format == "json" or file_format == "txt":
+    # special case for lorcana cards because the api is not responding well to the way I normally grab json
+    # this has to be json encoded in the lorcana file so that each card can be trained individually
+    if file_format == "json" and file_name == "lorcana cards":
+        response = requests.get(website)
+        return response.content
+    elif file_format == "json" or file_format == "txt":
         query_parameters = {"downloadformat": f"{file_format}"}
         response = requests.get(website, params=query_parameters)
     elif file_format == "pdf":
@@ -26,7 +31,8 @@ def web_downloader(website, file_name, file_format):
     else:
         raise Exception("web_downloader can not handle that file type")
     print(f"{file_name} done fetching")
-    if file_format == "json":
+    # same special case as line 17 mentions
+    if file_format == "json" and file_name != "lorcana cards":
         return response.json()
     elif file_format == "txt" or file_format == "pdf":
         return response.content

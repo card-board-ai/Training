@@ -20,12 +20,14 @@ def lorcana_rules(supa_client, supa_key, config):
 
 
 def lorcana_cards(supa_client, supa_key, config):
+    # this web downloader specifies json when actually it is
+    # going to retrieve txt because the api for lorcana cards is bad
     cards = external_comm.web_downloader(config.get('Sources', 'lorcana_cards'),
-                                         "lorcana cards", "txt")
+                                         "lorcana cards", "json")
+    json_cards = json.loads(cards)
     cards_location = "./lorcana_cards.json"
-    print(cards)
     with open(cards_location, 'w') as file:
-        json.dump(cards, file, indent=1, ensure_ascii=False)
+        json.dump(json_cards, file, indent=1, ensure_ascii=False)
         print(f'{cards_location} saved')
     loader = JSONLoader(
         file_path=cards_location,
@@ -33,6 +35,6 @@ def lorcana_cards(supa_client, supa_key, config):
     card_docs = loader.load()
     print("loader loaded")
     external_comm.supa_trainer("lorcana_cards", "Lorcana", supa_client, supa_key,
-                               cards, "json", card_docs)
+                               cards, "json", card_docs, cards_location)
     os.remove(cards_location)
     print("cards loaded")
