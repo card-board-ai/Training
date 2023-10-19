@@ -1,11 +1,14 @@
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import SupabaseVectorStore
 from datetime import datetime, timezone
+from rich.console import Console
 from hashlib import blake2b
 from rich import print
 import configparser
 import requests
 import json
+
+console = Console()
 
 config = configparser.ConfigParser()
 config.read('keys.cfg')
@@ -67,14 +70,14 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         supa_list = supa_client.storage.from_(str(table)).list()
         print(supa_list)
         file_id = next((item['id'] for item in supa_list if item['name'] == filename), None)
-        supa_client.table('training_ledger') \
-            .insert({"file_id": file_id, "file_name": filename, "hash": new_file_hash,
-                    "db_table": table, "game": game}) \
-            .execute()
         SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
                                            table_name=table, show_progress=True)
+        supa_client.table('training_ledger') \
+            .insert({"file_id": file_id, "file_name": filename, "hash": new_file_hash,
+                     "db_table": table, "game": game}) \
+            .execute()
     else:
-        print(f"{table} does not need to be trained")
+        console.print(f"{table} does not need to be trained", style="bold red")
 
 
 def gen_hash(file, file_format: str):
