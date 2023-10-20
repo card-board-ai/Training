@@ -5,7 +5,7 @@
 2. Clone project
 3. Run `poetry install` in project
 
-To run the script - `poetry run python Trainer.py`
+To run the script - `poetry run python main.py`
 
 **Note**
 

@@ -19,6 +19,7 @@ def lorcana_rules(supa_client, supa_key, config):
     print("rules loaded")
 
 
+# TODO perge the cards json for things the ai doens't need
 def lorcana_cards(supa_client, supa_key, config):
     # this web downloader specifies json when actually it is
     # going to retrieve txt because the api for lorcana cards is bad
