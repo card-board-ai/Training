@@ -71,7 +71,7 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         print(supa_list)
         file_id = next((item['id'] for item in supa_list if item['name'] == filename), None)
         SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
-                                           table_name=table, show_progress=True)
+                                           table_name=table, show_progress=True, chunk_size=100)
         supa_client.table('training_ledger') \
             .insert({"file_id": file_id, "file_name": filename, "hash": new_file_hash,
                      "db_table": table, "game": game}) \
