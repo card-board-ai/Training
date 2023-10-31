@@ -3,9 +3,8 @@ import external_comm
 import os
 
 
-def catan_rules(supa_client, supa_key):
-    rules_file = external_comm.web_downloader("https://www.catan.com/sites/default/files/2021-06/catan"
-                                              "_base_rules_2020_200707.pdf", "catan rules", "pdf")
+def catan_rules(supa_client, supa_key, config):
+    rules_file = external_comm.web_downloader(config.get('Sources', 'catan_rules'), "catan rules", "pdf")
     rules_location = "./rules.pdf"
     pdf = open(rules_location, 'wb')
     pdf.write(rules_file)
