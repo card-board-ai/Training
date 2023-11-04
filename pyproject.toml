@@ -18,6 +18,7 @@ rich = "^13.6.0"
 pypdf = "^3.16.4"
 cryptography = "^41"
 langchain = "^0.0.326"
+psycopg2-binary = "^2.9.9"
 
 
 [tool.poetry.group.dev.dependencies]
