@@ -46,7 +46,6 @@ def create_game(games_table, supa_client, environemnt, config):
     else:
         new_parent_game = None
 
-    # based on https://www.geeksforgeeks.org/executing-sql-query-with-psycopg2-in-python/
     # this is to to be able to run SQL to create the tables and the functions for the game
     call_postgres(new_rules_db, new_rules_sq_function_name, new_rules_kw_function_name, config, environemnt)
     if pieces_options[pieces_index] == "Yes" and new_pieces_db is not None:
@@ -62,10 +61,13 @@ def create_game(games_table, supa_client, environemnt, config):
                                        "rulesSimilarityQueryName": new_rules_sq_function_name,
                                        "rulesKeywordQueryName": new_rules_kw_function_name}).execute()
 
-    # TODO create the game file in this directory
+    # TODO look into doing this in git so that it can create its own branch and create the file there
+    # this creates the game file in this directory
+    open(f"{new_game_name}.py", "wb").close()
 
 
 def call_postgres(table_name: str, sim_q_name: str, key_q_name: str, config, environemnt):
+    # based on https://www.geeksforgeeks.org/executing-sql-query-with-psycopg2-in-python/
     conn = psycopg2.connect(
         database=config.get(f'Postgress {environemnt}', 'database'),
         user=config.get(f'Postgress {environemnt}', 'user'),
