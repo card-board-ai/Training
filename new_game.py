@@ -52,8 +52,15 @@ def create_game(games_table, supa_client, environemnt, config):
     if pieces_options[pieces_index] == "Yes" and new_pieces_db is not None:
         call_postgres(new_pieces_db, new_pieces_sq_function_name, new_pieces_kw_function_name, config, environemnt)
 
-    # TODO this is to insert the row into the games table with all the fields
-    supa_client.table('countries').insert({"id": 1, "name": "Denmark"}).execute()
+    # this is to insert the row into the games table with all the fields, the option values here
+    # are nullable in the db so passing none in the insert should be fine
+    supa_client.table('games').insert({"name": new_game_name, "rules_db": new_rules_db,
+                                       "pieces_db": new_pieces_db, "parent_game": new_parent_game,
+                                       "training_file": new_game_name,
+                                       "piecesSimilarityQueryName": new_pieces_sq_function_name,
+                                       "piecesKeywordQueryName": new_pieces_kw_function_name,
+                                       "rulesSimilarityQueryName": new_rules_sq_function_name,
+                                       "rulesKeywordQueryName": new_rules_kw_function_name}).execute()
 
     # TODO create the game file in this directory
 
