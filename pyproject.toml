@@ -17,7 +17,7 @@ tiktoken = "^0.5.1"
 rich = "^13.6.0"
 pypdf = "^3.16.4"
 cryptography = "^41"
-langchain = "^0.0.326"
+langchain = "^0.0.329"
 psycopg2-binary = "^2.9.9"
 
 

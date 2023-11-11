@@ -11,10 +11,11 @@ config = configparser.ConfigParser()
 config.read('keys.cfg')
 
 console.print("Which environment are we training?", style="bold green")
-menu_options = ["Prod", "Local"]
+menu_options = ["Prod", "Local"]  # these are used to pull keys from keys file. update postgres headers if changed
 terminal_menu = TerminalMenu(menu_options)
 env_choice = terminal_menu.show()
 
+environment = menu_options[env_choice]
 if menu_options[env_choice] == "Local":
     supa_key = config.get('Supabase', 'local_key')
     supa_client: Client = create_client(config.get('Supabase', 'local_url'),
@@ -33,6 +34,6 @@ action_menu = TerminalMenu(action_options)
 action_index = action_menu.show()
 match action_index:
     case 0:  # creat new game
-        create_game(games, supa_client)
+        create_game(games, supa_client, environment, config)
     case 1:  # train
         traindbs(games, config, supa_key, supa_client)
