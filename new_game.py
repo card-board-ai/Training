@@ -6,13 +6,13 @@ def create_game(games_table, supa_client, environemnt, config):
     games = []
     for item in games_table.data:
         name = item.get('game')
-        games.append(name.casefold())
+        games.append(name.casefold().replace(" ", "_"))
     
     # define the names of all required fields
     new_game_name: str = ""
     while new_game_name == "" or new_game_name.casefold().replace(" ", "_") in games:
-        new_game_name = input("New Game Name: ").casefold().replace(" ", "_")
-        if new_game_name.casefold() in games:
+        new_game_name = input("New Game Name: ")
+        if new_game_name.casefold().replace(" ", "_") in games:
             print("That game alreday exists")
             
     new_rules_db = new_game_name.casefold().replace(" ", "_") + "_rules"
