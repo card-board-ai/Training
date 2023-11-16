@@ -14,3 +14,4 @@ def dune_rules(supa_client, supa_key, config):
                                rules_file, "pdf", docs, rules_location)
     os.remove(rules_location)
     print("Dune rules loaded")
+    
