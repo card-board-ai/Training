@@ -19,6 +19,7 @@ pypdf = "^3.17.0"
 cryptography = "^41"
 langchain = "^0.0.329"
 psycopg2-binary = "^2.9.9"
+pymupdf = "^1.23.6"
 
 
 [tool.poetry.group.dev.dependencies]
