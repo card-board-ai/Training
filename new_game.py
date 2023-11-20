@@ -1,5 +1,6 @@
 from simple_term_menu import TerminalMenu
 import psycopg2
+import os
 
 
 def create_game(games_table, supa_client, environemnt, config):
@@ -15,7 +16,7 @@ def create_game(games_table, supa_client, environemnt, config):
         if new_game_name.casefold().replace(" ", "_") in games:
             print("That game alreday exists")
 
-    new_file_name = new_game_name.casefold().replace(" ","_")
+    new_file_name = new_game_name.casefold().replace(" ", "_")
     new_rules_db = new_game_name.casefold().replace(" ", "_") + "_rules"
     new_rules_sq_function_name = "match_" + new_rules_db
     new_rules_kw_function_name = "kw_match_" + new_rules_db
@@ -64,7 +65,9 @@ def create_game(games_table, supa_client, environemnt, config):
 
     # TODO look into doing this in git so that it can create its own branch and create the file there
     # this creates the game file in this directory
-    open(f"{new_file_name}.py", "wb").close()
+    new_file_path = f"{new_file_name}.py"
+    if not os.path.exists(new_file_path):
+        open(new_file_path, "wb").close()
 
 
 def call_postgres(table_name: str, sim_q_name: str, key_q_name: str, config, environemnt):
