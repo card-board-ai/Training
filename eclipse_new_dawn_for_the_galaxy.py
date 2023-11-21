@@ -15,3 +15,4 @@ def eclipse_new_dawn_for_the_galaxy_rules(supa_client, supa_key, config):
                                supa_client, supa_key, rules_file, "pdf", docs, rules_location)
     os.remove(rules_location)
     print("Eclipse New Dawn for the Galaxy rules loaded")
+    
