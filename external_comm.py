@@ -56,6 +56,8 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         dbwipe_response = requests.post(config.get('Supabase', 'table_wipe_url'), 
                                         headers=headers, json=data)
         print("vectorDbWipe server respons =" + str(dbwipe_response))
+        SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
+                                           table_name=table, show_progress=True, chunk_size=100)
         filename = f"{table}-{datetime.now(timezone.utc)}.{file_format}"
         print("filename = " + filename)
         bucket_list = supa_client.storage.list_buckets()
@@ -70,8 +72,6 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
         supa_list = supa_client.storage.from_(str(table)).list()
         print(supa_list)
         file_id = next((item['id'] for item in supa_list if item['name'] == filename), None)
-        SupabaseVectorStore.from_documents(documents, embeddings, client=supa_client,
-                                           table_name=table, show_progress=True, chunk_size=100)
         supa_client.table('training_ledger') \
             .insert({"file_id": file_id, "file_name": filename, "hash": new_file_hash,
                      "db_table": table, "game": game}) \
