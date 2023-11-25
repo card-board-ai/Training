@@ -2,6 +2,7 @@ from simple_term_menu import TerminalMenu
 from inspect import isfunction
 import importlib
 import inspect
+import os
 
 
 def traindbs(games, config, supa_key, supa_client):
@@ -10,14 +11,15 @@ def traindbs(games, config, supa_key, supa_client):
     
     # this iterates through the provided file names from db and creates lists for the menu and function execution
     for item in games.data:
-        file = item.get('training_file')
-        module = importlib.import_module(file)
-        # based on https://stackoverflow.com/questions/66084762/call-function-from-another-file-without-import-clause
-        for attribute_name in dir(module):
-            attribute = getattr(module, attribute_name)
-            if isfunction(attribute) and not attribute_name.startswith("_"):
-                menu_options.append(attribute.__name__)
-                functions.append(attribute)
+        if os.path.exists(f"./{item.get('training_file')}.py"):
+            file = item.get('training_file')
+            module = importlib.import_module(file)
+            # based https://stackoverflow.com/questions/66084762/call-function-from-another-file-without-import-clause
+            for attribute_name in dir(module):
+                attribute = getattr(module, attribute_name)
+                if isfunction(attribute) and not attribute_name.startswith("_"):
+                    menu_options.append(attribute.__name__)
+                    functions.append(attribute)
     
     # display cli menu
     function_menu = TerminalMenu(
