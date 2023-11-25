@@ -1,6 +1,7 @@
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import SupabaseVectorStore
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 from rich.console import Console
 from hashlib import blake2b
 from rich import print
@@ -31,13 +32,18 @@ def web_downloader(website, file_name, file_format):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:108.0) Gecko/20100101 Firefox/108.0'
         }
         response = requests.get(website, headers=headers, stream=True)
+    elif file_format == "googlepdf":
+        url = "https://docs.google.com/uc?export=download&confirm=1"
+        session = requests.Session()
+        parsed_url = urlparse(website)
+        pdfid = parsed_url.path.split('/')[-2]
+        response = session.get(url, params={"id": pdfid}, stream=True)
     else:
         raise Exception("web_downloader can not handle that file type")
     print(f"{file_name} done fetching")
-    # same special case as line 17 mentions
     if file_format == "json" and file_name != "lorcana cards":
         return response.json()
-    elif file_format == "txt" or file_format == "pdf":
+    elif file_format == "txt" or file_format == "pdf" or file_format == "googlepdf":
         return response.content
 
 
