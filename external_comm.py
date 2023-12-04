@@ -88,7 +88,7 @@ def supa_trainer(table, game, supa_client, supa_auth, file, file_format, documen
 
 def gen_hash(file, file_format: str):
     if file_format == "json":
-        encoded = json.dumps(file_format, sort_keys=True).encode()
+        encoded = json.dumps(file, sort_keys=True).encode()
         return blake2b(encoded).hexdigest()
     else:
         return blake2b(file).hexdigest()
@@ -96,6 +96,8 @@ def gen_hash(file, file_format: str):
 
 def hash_compare(previous, current):
     if previous[1]:
+        print("fetched from ledger" + str(previous[1][0]))
+        print("new file:" + current)
         # Check the provided hash against the first hash in the response data
         if previous[1][0].get('hash') == current:
             return False
