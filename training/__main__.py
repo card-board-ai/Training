@@ -2,8 +2,8 @@ from supabase.client import Client, create_client
 from simple_term_menu import TerminalMenu
 from rich.console import Console
 import configparser
-from train import traindbs
-from new_game import create_game
+from .train import traindbs
+from .new_game import create_game
 
 console = Console()
 

@@ -1,19 +1,19 @@
 from langchain.document_loaders import PyPDFLoader
 from langchain.document_loaders import JSONLoader
-import external_comm
+from ..external_comm import web_downloader, supa_trainer
 import json
 import os
 
 
 def lorcana_rules(supa_client, supa_key, config):
-    rules_file = external_comm.web_downloader(config.get('Sources', 'lorcana_rules'),
+    rules_file = web_downloader(config.get('Sources', 'lorcana_rules'),
                                               "lorcana rules", "pdf")
     rules_location = "./rules.pdf"
     pdf = open(rules_location, 'wb')
     pdf.write(rules_file)
     loader = PyPDFLoader(rules_location)
     docs = loader.load_and_split()
-    external_comm.supa_trainer("lorcana_rules", "Lorcana", supa_client, supa_key,
+    supa_trainer("lorcana_rules", "Lorcana", supa_client, supa_key,
                                rules_file, "pdf", docs, rules_location)
     os.remove(rules_location)
     print("rules loaded")
@@ -23,7 +23,7 @@ def lorcana_rules(supa_client, supa_key, config):
 def lorcana_cards(supa_client, supa_key, config):
     # this web downloader specifies json when actually it is
     # going to retrieve txt because the api for lorcana cards is bad
-    cards = external_comm.web_downloader(config.get('Sources', 'lorcana_cards'),
+    cards = web_downloader(config.get('Sources', 'lorcana_cards'),
                                          "lorcana cards", "json")
     json_cards = json.loads(cards)
     cards_location = "./lorcana_cards.json"
@@ -35,7 +35,7 @@ def lorcana_cards(supa_client, supa_key, config):
         jq_schema='.[] | tostring')
     card_docs = loader.load()
     print("loader loaded")
-    external_comm.supa_trainer("lorcana_cards", "Lorcana", supa_client, supa_key,
+    supa_trainer("lorcana_cards", "Lorcana", supa_client, supa_key,
                                cards, "json", card_docs, cards_location)
     os.remove(cards_location)
     print("cards loaded")

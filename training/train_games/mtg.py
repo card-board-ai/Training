@@ -3,7 +3,7 @@ from langchain.document_loaders import JSONLoader
 from langchain.document_loaders import TextLoader
 from simple_term_menu import TerminalMenu
 from bs4 import BeautifulSoup
-import external_comm
+from ..external_comm import web_downloader, supa_trainer
 import requests
 import json
 import os
@@ -20,8 +20,8 @@ def magic_cards(supa_client, supa_key, config):
         jq_schema='.[] | tostring')
     card_docs = loader.load()
     print("loader loaded")
-    external_comm.supa_trainer("magic_cards", "Magic The Gathering", supa_client, supa_key,
-                               finished_file, "json", card_docs, cards_location)
+    supa_trainer("magic_cards", "Magic The Gathering", supa_client, supa_key,
+                 finished_file, "json", card_docs, cards_location)
     os.remove(cards_location)
 
 
@@ -71,17 +71,17 @@ def _json_merger(m_file_a, m_file_b):
 
 
 def _magic_cards_loader(config):
-    fetched_data = external_comm.web_downloader(config.get('Sources', 'mtg_cards'),
-                                                "scryfall_bulk_data", "json")
+    fetched_data = web_downloader(config.get('Sources', 'mtg_cards'),
+                                  "scryfall_bulk_data", "json")
     file_b = None
     file_a = None
     for item in fetched_data['data']:
         if item['type'] == "oracle_cards":
-            file_b = external_comm.web_downloader(item['download_uri'], 
-                                                  item['type'], "json")
+            file_b = web_downloader(item['download_uri'],
+                                    item['type'], "json")
         elif item['type'] == "rulings":
-            file_a = external_comm.web_downloader(item['download_uri'], 
-                                                  item['type'], "json")
+            file_a = web_downloader(item['download_uri'],
+                                    item['type'], "json")
 
     fin_file_b = _json_merger(file_a, file_b)
     return fin_file_b
@@ -105,8 +105,8 @@ def magic_rules(supa_client, supa_key, config):
                                                    chunk_overlap=200,
                                                    length_function=len)
     rules_docs = text_splitter.split_documents(documents)
-    external_comm.supa_trainer("magic_rules", "Magic The Gathering", supa_client, supa_key,
-                               rules_file, "txt", rules_docs, rules_location)
+    supa_trainer("magic_rules", "Magic The Gathering", supa_client, supa_key,
+                 rules_file, "txt", rules_docs, rules_location)
     os.remove(rules_location)
 
 
@@ -123,12 +123,12 @@ def _magic_rules_loader(config):
     if len(file_links) > 1:
         terminal_menu = TerminalMenu(file_links)
         choice_index = terminal_menu.show()
-        rules_file = external_comm.web_downloader(file_links[choice_index], 
-                                                  "rules", 
-                                                  "txt")
+        rules_file = web_downloader(file_links[choice_index],
+                                    "rules",
+                                    "txt")
         return rules_file
     elif file_links.count == 0:
         raise Exception("0 text files paresed from website")
     else:
-        rules_file = external_comm.web_downloader(file_links[0], "rules", "txt")
+        rules_file = web_downloader(file_links[0], "rules", "txt")
         return rules_file
